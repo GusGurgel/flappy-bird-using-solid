@@ -1,0 +1,3 @@
+\babel@toc {brazil}{}\relax 
+\beamer@sectionintoc {1}{Princípios SOLID}{2}{0}{1}
+\beamer@subsectionintoc {1}{1}{O que/quais são?}{2}{0}{1}
