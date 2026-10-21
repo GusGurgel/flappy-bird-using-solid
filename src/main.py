@@ -75,7 +75,7 @@ class Game:
         self.pipe_2_rect = self.pipe_2_image.get_frect(topleft=pos)
 
         # score text
-        self.font = pygame.font.SysFont("ProggyClean Nerd Font Propo", 16)
+        self.font = pygame.font.SysFont(None, 16)
         self.score_color = "#eeeeee"
         self.score_text_surface = self.font.render(f"score: {self.score}", False, self.score_color)
 
@@ -84,7 +84,7 @@ class Game:
         self.background_rect.centerx -= self.background_speed * dt
         if self.background_rect.left < -(2*self.sub_display_rect.w):
             self.background_rect.topleft = (0, 0)
-    
+
     # mover o pássaro
     def move_bird(self, dt):
         # Aplicando gravidade
@@ -95,25 +95,25 @@ class Game:
             self.bird_acceleration.y = self.bird_max_vertical_acceleration
         elif self.bird_acceleration.y < -self.bird_max_vertical_acceleration:
             self.bird_acceleration.y = -self.bird_max_vertical_acceleration
-        
+
         # Aplicando pulo
         if pygame.key.get_pressed()[pygame.K_SPACE] or pygame.mouse.get_pressed()[0]:
             if self.bird_clock >= self.bird_jump_coldown:
                 self.bird_acceleration.y = 0
                 self.bird_acceleration.y -= self.bird_jump_force
                 self.bird_clock = 0
-        
+
         # Matar pássaro se sair da tela
         if self.bird_rect.top > self.sub_display_rect.bottom + 20:
             self.reset_game()
             return
-        
+
         if self.bird_rect.bottom < self.sub_display_rect.top - 20:
             self.reset_game()
             return
 
         self.bird_rect.center += self.bird_acceleration * dt
-    
+
     # mover canos
     def move_pipes(self, dt):
         if not self.score_added and self.pipe_1_rect.centerx < self.bird_rect.centerx:
@@ -138,13 +138,13 @@ class Game:
     # animar o pássaro
     def animate_bird(self):
         self.bird_image_index = 0 if self.bird_acceleration.y < 0 else 1
-    
+
     # resolver colisões
     def handle_collision(self):
         if self.bird_rect.colliderect(self.pipe_1_rect)\
         or self.bird_rect.colliderect(self.pipe_2_rect):
             self.reset_game()
-    
+
     # resetar o jogo
     def reset_game(self):
         self.started = False
@@ -163,7 +163,7 @@ class Game:
         self.pipe_1_rect.bottomleft = pos
         pos = (self.sub_display_rect.w+10, -distance_pipes+offset)
         self.pipe_2_rect.topleft = pos
-    
+
     # resolver os eventos
     def handle_events(self):
         for event in pygame.event.get():
@@ -200,7 +200,7 @@ class Game:
 
 
         # desnhar plano de fundo
-        self.sub_display_surface.blit(self.background_image, 
+        self.sub_display_surface.blit(self.background_image,
                                         self.background_rect)
 
         # desenhar pássaro
@@ -210,15 +210,15 @@ class Game:
         # desenhar canos
         self.sub_display_surface.blit(self.pipe_1_image,
                                       self.pipe_1_rect)
-        
+
         self.sub_display_surface.blit(self.pipe_2_image,
                                       self.pipe_2_rect)
 
         self.sub_display_surface.blit(self.score_text_surface)
 
         # flip the screen buffer
-        pygame.display.update()  
-    
+        pygame.display.update()
+
     # iniciar jogo
     def run(self):
         while self.running:

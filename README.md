@@ -1,5 +1,10 @@
 # Flappy Bird - Applying SOLID Principles bird 🐥💻
 
+<p align="center" >
+  <!-- Substitua o link do src pela sua imagem/gif de demonstração, se tiver -->
+  <img width="300" src="./showcase.gif" alt="Flappy Bird Showcase">
+</p>
+
 ## Introduction
 This repository contains the implementation of a **Flappy Bird** clone, developed using the **pygame** library. The project was carried out as part of a **Software Engineering** course assignment, aiming to apply **SOLID** principles to improve code quality.
 
@@ -37,22 +42,22 @@ The assignment was structured into five main stages:
 📂 flappy-bird-solid
  ├── 📂 src              # Source code
  ├── 📂 LaTeX            # LaTeX project presentation
+ ├── pyproject.toml      # Project metadata and dependencies
+ ├── uv.lock             # Locked dependency versions
  ├── README.md           # Project introduction
 ```
 
 ## How to Run
-1. Clone this repository:
+
+Make sure [UV](https://docs.astral.sh/uv/) is installed, then run the following commands from the project root:
+
+1. Install and synchronize the project dependencies:
    ```bash
-   git clone 
-   cd flappy-bird-solid
+   uv sync
    ```
-2. Install dependencies:
+2. Run the game:
    ```bash
-    pip install pygame-ce
-   ```
-3. Run the game:
-   ```bash
-   python src/main(s|o|l|i).py
+   uv run ./src/main.py
    ```
 
 ### Progressive Development with SOLID

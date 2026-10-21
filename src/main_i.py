@@ -57,7 +57,7 @@ class MovableObject(Object):
 class HorizontalMovableObject(MovableObject):
     def __init__(self, image, rect, layer, inital_acceleration=(0, 0), do_move=False):
         super().__init__(image, rect, layer, inital_acceleration, do_move)
-    
+
     def update_acceleration(self, dt):
         keys = pygame.key.get_pressed()
         self.acceleration.x = (keys[pygame.K_d] - keys[pygame.K_a]) * 50
@@ -67,11 +67,11 @@ class HorizontalMovableObject(MovableObject):
 class ObjectContainer():
     def __init__(self, objects):
         self.objects = objects
-    
+
     def update_objects(self, dt):
         for object in self.objects:
             object.update(dt)
-    
+
     def draw_objects(self, display_surface):
         objects = filter(lambda x : type(x).__base__ in [Object, MovableObject], self.objects)
         for object in sorted(objects, key=lambda x : x.layer):
@@ -86,17 +86,17 @@ class Background(MovableObject):
 
         self.do_move = False
         super().__init__(image, rect, layer, (-40, 0))
-    
+
     # Resetar posicão do plano de fundo
     def reset_position(self):
         if self.rect.left < -200:
             self.rect.topleft = (0, 0)
-    
+
     # Começar o mover quando clickar
     def start_move_on_click(self):
         if pygame.key.get_pressed()[pygame.K_SPACE] or pygame.mouse.get_pressed()[0]:
             self.do_move = True
-    
+
     # Resetar background
     def reset(self):
         self.rect.topleft = (0, 0)
@@ -121,7 +121,7 @@ class Bird(MovableObject):
             pygame.image.load(join("images", "bird_1.png")),
             pygame.image.load(join("images", "bird_2.png"))
         ]
-        
+
         image = self.bird_images[self.bird_image_index]
         rect = image.get_frect(center=(14, 65))
         layer = 1
@@ -144,9 +144,9 @@ class Bird(MovableObject):
                 self.acceleration.y = 0
                 self.acceleration.y -= self.bird_jump_force
                 self.bird_clock = 0
-        
+
         super().update_acceleration(dt)
-    
+
     def start_move_on_click(self):
         if pygame.key.get_pressed()[pygame.K_SPACE] or pygame.mouse.get_pressed()[0]:
             self.do_move = True
@@ -162,7 +162,7 @@ class Bird(MovableObject):
             self.image = self.bird_images[0]
         else:
             self.image = self.bird_images[1]
-    
+
     def update(self, dt):
         super().update(dt)
         self.start_move_on_click()
@@ -187,7 +187,7 @@ class DoublePipe(Object):
     def draw(self, display_surface):
         display_surface.blit(self.image1, self.rect1)
         display_surface.blit(self.image2, self.rect2)
-    
+
     def reset(self):
         distance_pipes = uniform(*self.pipes_dist_range)/2
         offset = uniform(*self.pipes_position_offset_range)
@@ -196,14 +196,14 @@ class DoublePipe(Object):
         self.rect2.topleft = (105, -distance_pipes+offset)
 
         self.do_move = False
-    
+
     def move(self, dt):
         if self.rect1.right < 0:
             self.reset()
 
         self.rect1.centerx -= self.pipes_speed * dt
         self.rect2.centerx -= self.pipes_speed * dt
-    
+
     def update(self, dt):
         if pygame.key.get_pressed()[pygame.K_SPACE] or pygame.mouse.get_pressed()[0]:
             self.do_move = True
@@ -216,13 +216,13 @@ class Death(InvisibleObject):
         self.bird = bird
         self.double_pipe = double_pipe
         self.kill_operation = kill_operation
-    
+
     # Matar pássaro quando colidir com cano
     def kill_by_collision(self):
         if self.bird.rect.colliderect(self.double_pipe.rect1)\
         or self.bird.rect.colliderect(self.double_pipe.rect2):
             self.kill_operation()
-    
+
     # Matar pássaro quando sair do mapa
     def kill_by_out_of_bounds(self):
         if self.bird.rect.bottom < -10:
@@ -236,18 +236,18 @@ class Death(InvisibleObject):
 
 class Score(Object):
     def __init__(self):
-        self.font = pygame.font.SysFont("ProggyClean Nerd Font Propo", 16)
+        self.font = pygame.font.SysFont(None, 16)
         self.score = 0
         image = self.font.render(f"score {self.score}", False, "white")
         rect = image.get_frect()
 
         super().__init__(image, rect, 1)
-    
+
     def add_score(self):
         self.score += 1
         self.image = self.font.render(f"score {self.score}", False, "white")
         self.rect = self.image.get_frect()
-    
+
     def reset(self):
         self.score = 0
         self.image = self.font.render(f"score {self.score}", False, "white")
@@ -259,7 +259,7 @@ class ScoreObserver(InvisibleObject):
         self.score = score
 
         self.score_added = True
-    
+
     def update(self, _):
         if self.bird.rect.centerx > self.pipes.rect1.centerx:
             self.score_added = False
@@ -319,7 +319,7 @@ class Game:
         self.background.reset()
         self.score.reset()
         self.score_observer.score_added = True
-    
+
     # resolver os eventos
     def handle_events(self):
         for event in pygame.event.get():
@@ -348,8 +348,8 @@ class Game:
         self.objects_container.draw_objects(self.sub_display_surface)
 
         # flip the screen buffer
-        pygame.display.update()  
-    
+        pygame.display.update()
+
     # iniciar jogo
     def run(self):
         while self.running:
