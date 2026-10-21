@@ -1,4 +1,4 @@
-# Flappy Bird - Applying SOLID Principles bird 🐥💻
+# Flappy Bird — Applying SOLID Principles 🐥💻
 
 <p align="center" >
   <!-- Substitua o link do src pela sua imagem/gif de demonstração, se tiver -->
@@ -42,9 +42,6 @@ The assignment was structured into five main stages:
 📂 flappy-bird-solid
  ├── 📂 src              # Source code
  ├── 📂 LaTeX            # LaTeX project presentation
- ├── pyproject.toml      # Project metadata and dependencies
- ├── uv.lock             # Locked dependency versions
- ├── README.md           # Project introduction
 ```
 
 ## How to Run
@@ -326,7 +323,82 @@ To allow **extensibility without modifying existing code**, a new **hierarchy of
 
 ### **Key Changes**
 1. The `Background` and `Bird` classes now extend `MovableObject`, allowing them to be moved without modifying their core logic.
-2. The `Bird` class was further improved by inheriting from `HorizontalMovableObject`, ensuring it can move horizontally without rewriting movement logic in multiple places.
-3. The rest of the game structure remained unchanged, demonstrating **OCP in action**—new functionality was added **without modifying** the existing `Game` class.
+2. `HorizontalMovableObject` is introduced as a reusable specialization for horizontal movement controlled by keyboard input. In the current snapshot, however, neither `Bird` nor `Background` inherits from this class.
+3. The overall structure of `Game` remains the same, while shared movement behavior is moved into a base class. This is a step toward the **Open/Closed Principle (OCP)** because common movement behavior can be extended through inheritance instead of being duplicated in every object.
 
-This approach **reduces code duplication**, **improves flexibility**, and **makes future movement-related changes easier**. The next step (`main_l.py`) will focus on implementing the **Liskov Substitution Principle (LSP)**.
+This approach can **reduce code duplication** and **make movement behavior easier to reuse**. The next section discusses the **Liskov Substitution Principle (LSP)** and clarifies what the current `main_l.py` version demonstrates.
+
+
+### **From `main_o.py` to `main_l.py` (Liskov Substitution Principle)**
+
+The **Liskov Substitution Principle (LSP)** states that an instance of a subtype should be usable wherever an instance of its base type is expected, without breaking the program's expected behavior.
+
+In this project, the `ObjectContainer` works with different game entities through common operations:
+
+```python
+for object in self.objects:
+    object.update(dt)
+```
+
+It also draws objects through a shared `draw(display_surface)` operation. This design relies on objects respecting the behavior expected by the container. For example, an object added to the drawable collection must provide the attributes and methods required for rendering, while every managed object must support updates.
+
+### **From `main_l.py` to `main_i.py` (Interface Segregation Principle)**
+
+The **Interface Segregation Principle (ISP)** states that a class should not be forced to depend on operations it does not need. In this game, not every object needs to be rendered on the screen.
+
+Before this step, `Death` and `ScoreObserver` inherited from `Object`, even though they only performed logic and did not have anything to draw. They passed `None` for visual attributes and still belonged to the same hierarchy as visible game elements.
+
+#### **Refactoring for ISP**
+
+`main_i.py` introduces `InvisibleObject`, which represents game entities that need to be updated but do not need to be drawn:
+
+```python
+class InvisibleObject:
+    def update(self, dt):
+        pass
+
+class Death(InvisibleObject):
+    # Checks collisions and triggers the game reset.
+    ...
+
+class ScoreObserver(InvisibleObject):
+    # Detects when the player passes a pipe and updates the score.
+    ...
+```
+
+`Death` and `ScoreObserver` now inherit from `InvisibleObject` rather than `Object`. The rendering loop also filters out objects that are not part of the visual-object hierarchy:
+
+```python
+objects = filter(
+    lambda x: type(x).__base__ in [Object, MovableObject],
+    self.objects
+)
+for object in sorted(objects, key=lambda x: x.layer):
+    object.draw(display_surface)
+```
+
+#### **Key Changes**
+
+- **`InvisibleObject`** separates update-only entities from objects that are rendered.
+- **`Death`** contains collision and out-of-bounds checks without requiring image, rectangle, or layer attributes.
+- **`ScoreObserver`** monitors pipe passage and updates the score without being treated as a visual element.
+- **`ObjectContainer`** avoids attempting to draw these invisible entities.
+
+This is a practical application of ISP because logic-only objects no longer need to carry visual-object data just to participate in the update loop.
+
+### **Dependency Inversion Principle (DIP)**
+
+The **Dependency Inversion Principle** has two parts:
+
+1. High-level modules should not depend directly on low-level modules; both should depend on abstractions.
+2. Abstractions should not depend on implementation details; implementation details should depend on abstractions.
+
+Applied to a game, this can mean designing high-level game logic around abstractions for the services it needs, rather than hard-coding every concrete implementation. For example, a game system could receive an input provider or asset loader through its constructor instead of creating and depending directly on a specific implementation.
+
+#### **Status of the current implementation**
+
+The accompanying LaTeX presentation (`main.tex`) includes the theory and visual examples for DIP. However, among the supplied Python files, there is **no separate `main_d.py` or clear DIP-specific refactoring**. For that reason, this README does not describe DIP as an implemented code stage. A future version could demonstrate it by introducing a small abstraction and injecting its implementation into the game logic.
+
+### **Conclusion**
+
+This project uses a Flappy Bird clone to explore how SOLID principles can guide object-oriented design. The progression from a monolithic `Game` class toward separate game entities illustrates how responsibilities can be distributed and how common behavior can be reused.
